@@ -231,51 +231,34 @@
 	/*	contact form
 	------------------------------------------------------ */
 
+
 	/* local validation */
 	$('#contactForm').validate({
 
-		/* submit via ajax */
-		submitHandler: function(form) {
-
+		/* submit via EmailJS */
+		submitHandler: function (form) {
 			var sLoader = $('#submit-loader');
 
-			$.ajax({      	
+			// Show loader before sending
+			sLoader.fadeIn();
+			
+			// Use EmailJS to send the form
+			emailjs.init("RZh5LENrcNKeJqA2r");
 
-		      type: "POST",
-		      url: "inc/sendEmail.php",
-		      data: $(form).serialize(),
-		      beforeSend: function() { 
-
-		      	sLoader.fadeIn(); 
-
-		      },
-		      success: function(msg) {
-
-	            // Message was sent
-	            if (msg == 'OK') {
-	            	sLoader.fadeOut(); 
-	               $('#message-warning').hide();
-	               $('#contactForm').fadeOut();
-	               $('#message-success').fadeIn();   
-	            }
-	            // There was an error
-	            else {
-	            	sLoader.fadeOut(); 
-	               $('#message-warning').html(msg);
-		            $('#message-warning').fadeIn();
-	            }
-
-		      },
-		      error: function() {
-
-		      	sLoader.fadeOut(); 
-		      	$('#message-warning').html("Something went wrong. Please try again.");
-		         $('#message-warning').fadeIn();
-
-		      }
-
-	      });     		
-  		}
+			emailjs.sendForm('service_fvvp769', 'template_3ba1q3i', form) 
+				.then(function () {
+					// Message was sent
+					sLoader.fadeOut();
+					$('#message-warning').hide();
+					$('#contactForm').fadeOut();
+					$('#message-success').fadeIn(); // Display success message
+				}, function (error) {
+					// There was an error
+					sLoader.fadeOut();
+					$('#message-warning').html("Failed to send email. Error: " + JSON.stringify(error));
+					$('#message-warning').fadeIn();
+				});
+		}
 
 	});
 
